@@ -28,11 +28,23 @@ public class BookListActivity extends AppCompatActivity implements SearchView.On
         setContentView(R.layout.activity_book_list);
         mLoadingProgress = (ProgressBar) findViewById(R.id.pb_loading);
         rvBooks = (RecyclerView) findViewById(R.id.rvBooks);
+
+        Intent intent = getIntent();
+        String query = intent.getStringExtra("query");
+        //TODO: FIX THIS
+
         LinearLayoutManager booksLayoutManager = new LinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false);
         rvBooks.setLayoutManager(booksLayoutManager);
+
+        URL bookUrl;
         try {
-            URL bookUrl = ApiUtil.buildUrl("cooking");
+            if (query == null || query.isEmpty()) {
+                bookUrl = ApiUtil.buildUrl("cooking");
+            }
+            else {
+                bookUrl = new URL(query);
+            }
             new BooksQueryTask().execute(bookUrl);
         }
 
@@ -105,11 +117,12 @@ public class BookListActivity extends AppCompatActivity implements SearchView.On
             else {
                 rvBooks.setVisibility(View.VISIBLE);
                 tvError.setVisibility(View.INVISIBLE);
-            }
-            ArrayList<Book> books = ApiUtil.getBooksFromJson(result);
+                ArrayList<Book> books = ApiUtil.getBooksFromJson(result);
 
-            BooksAdapter adapter = new BooksAdapter(books);
-            rvBooks.setAdapter(adapter);
+                BooksAdapter adapter = new BooksAdapter(books);
+                rvBooks.setAdapter(adapter);
+            }
+
         }
 
         @Override
